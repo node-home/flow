@@ -1,0 +1,75 @@
+Trigger
+  app
+  uid
+  name
+  description
+  funnel: [
+    key
+    default
+    (min)
+    (max)
+    (options)
+  ]
+  provides: [
+    key
+    type
+  ]
+
+Action
+  app
+  uid
+  name
+  description
+  params: [
+    key
+    default
+    (type)
+    (options)
+    (validation)
+  ]
+
+
+Macro
+  uid
+  name
+  description
+  actions: [Action]
+
+/triggers
+/triggers/:app
+
+/actions
+/actions/:app
+
+/feeds
+/feeds/:app
+
+/sources
+/sources/:app
+
+/outlets
+/outlets/:app
+
+Features
+- Triggergroups? (provide solid usecase)
+
+## Journey
+
+Trigger -> Action
+1. select trigger/feeds
+2. funnel trigger
+  (These could be custom conditions like time of day)
+3. select action/macro
+4. customise action
+
+
+Macro
+1. set name, description
+2. set params
+3.
+  1. select action
+  2. customise action
+
+
+## Actions
+  macro <params>

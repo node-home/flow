@@ -1,0 +1,27 @@
+{
+  "name": "home.flow",
+  "version": "0.0.0",
+  "description": "Home Flow",
+  "main": "index.js",
+  "author": {
+    "name": "Jesse the Game",
+    "email": "jesse@jessethegame.net"
+  },
+  "license": "ISC",
+  "dependencies": {
+   "lodash": "*",
+   "socket.io": "*",
+   "socket.io-client": "*"
+  },
+  "devDependencies": {
+    "coffee-script": "*",
+    "mocha": "*",
+    "should": "*",
+    "uglify-js": "*",
+    "nock": "*"
+  },
+  "scripts": {
+    "prepublish": "coffee -o ./lib ./src",
+    "test": "make test"
+  }
+}
