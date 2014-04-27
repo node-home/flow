@@ -2,6 +2,8 @@ url      = require 'url'
 http     = require 'http'
 ioClient = require 'socket.io-client'
 
+core     = require 'home/src/core'
+
 exports.buildSubscribers = (uid, emitter) ->
   # Connect a callback function that is called on each tick
   callback: (callback) ->
@@ -18,8 +20,7 @@ exports.buildSubscribers = (uid, emitter) ->
       'force new connection': true
     emitter.on uid, func = (args) ->
       clientSocket.emit uid, args
-    ->
-      emitter.removeListener uid, func
+    -> emitter.removeListener uid, func
 
   # Connect an endpoint that is called on each tick.
   endpoint: (clientUrl) ->
@@ -39,7 +40,7 @@ exports.buildSubscribers = (uid, emitter) ->
     -> emitter.removeListener uid, func
 
 exports.buildEndpoint = (uid, feed) ->
-  endpoint uid,
+  core.endpoint uid,
     method: 'POST'
     params:
       socket:
@@ -56,7 +57,7 @@ exports.buildEndpoint = (uid, feed) ->
     # OR
     #
     # Create a resource that can be options
-    endpoint uid,
+    core.endpoint uid,
       method: 'DELETE'
       url: "/TODO/feed/uuid"
     , (args) ->

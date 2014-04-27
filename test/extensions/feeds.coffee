@@ -13,16 +13,22 @@ helpers = require '../../src/helpers'
 describe 'helpers', ->
   @timeout 1500
 
-  describe 'buildSubscribers()', ->
-    emitter = null
-    subscribers = null
-    fire = null
+  emitter = null
+  subscribers = null
+  fire = null
 
-    beforeEach ->
-      emitter = new events.EventEmitter
-      subscribers = helpers.buildSubscribers 'test', emitter
-      fire = ->
-        emitter.emit 'test', test: true
+  createNock = ->
+    nock 'http://test.local'
+    .filteringRequestBody /.*/, '*'
+    .post '/endpoint', '*'
+
+  beforeEach ->
+    emitter = new events.EventEmitter
+    subscribers = helpers.buildSubscribers 'test', emitter
+    fire = ->
+      emitter.emit 'test', test: true
+
+  describe 'buildSubscribers()', ->
 
     describe 'callback', ->
       it 'should support callbacks', ->
@@ -44,10 +50,13 @@ describe 'helpers', ->
         setTimeout done, 100
 
     describe 'endpoint', ->
-      createNock = ->
-        nock 'http://test.local'
-        .filteringRequestBody(/.*/, '*')
-        .post('/endpoint', '*')
+      nocks = null
+
+      beforeEach ->
+        nocks = createNock()
+
+      afterEach ->
+        nock.cleanAll()
 
       it 'should support endpoints', ->
         subscribers.should.have.property 'endpoint'
@@ -55,16 +64,14 @@ describe 'helpers', ->
       it 'should support https'
 
       it 'should register endpoints', (done) ->
-        createNock()
-        .reply 200, (uri, requestBody) ->
+        nocks.reply 200, (uri, requestBody) ->
           JSON.parse(requestBody).should.containEql test: true
           done()
         subscribers.endpoint 'http://test.local/endpoint'
         fire()
 
       it 'should unregister endpoints', (done) ->
-        createNock()
-        .reply 200, (uri, requestBody) ->
+        nocks.reply 200, (uri, requestBody) ->
           done 'did not unregister endpoint'
         stop = subscribers.endpoint 'http://test.local/endpoint'
         stop()
@@ -105,11 +112,61 @@ describe 'helpers', ->
         stop()
 
   describe 'buildEndpoint()', ->
-    it 'should return a construction method', ->
+    endpoint = null
 
-    it 'should return a construction method', ->
+    beforeEach ->
+      endpoint = helpers.buildEndpoint 'test', subscribers
+
+    describe '.socket', ->
+      socket = null
+
+      beforeEach ->
+        socket = io.server.listen 5000, log: false
+
+      afterEach ->
+        socket.server.close()
+
+      it 'should register sockets', (done) ->
+        socket.sockets.on 'connection', (client) ->
+          client.on 'test', (args) ->
+            args.should.containEql test: true
+            done()
+          fire()
+        endpoint socket: 'http://localhost:5000'
+
+      it 'should unregister sockets', (done) ->
+        socket.sockets.on 'connection', (client) ->
+          client.on 'test', (args) ->
+            done 'did not unregister socket'
+          stop()
+          fire()
+          setTimeout done, 100
+        stop = endpoint socket: 'http://localhost:5000'
+
+    describe '.endpoint', ->
+      nocks = null
+
+      beforeEach ->
+        nocks = createNock()
+
+      afterEach ->
+        nock.cleanAll()
+
+      it 'should register endpoints', (done) ->
+        nocks.reply 200, (uri, requestBody) ->
+          JSON.parse(requestBody).should.containEql test: true
+          done()
+        stop = subscribers.endpoint 'http://test.local/endpoint'
+        fire()
+
+      it 'should unregister endpoints', (done) ->
+        nocks.reply 200, (uri, requestBody) ->
+          done 'did not unregister endpoint'
+        stop = subscribers.endpoint 'http://test.local/endpoint'
+        stop()
+        fire()
+        setTimeout done, 100
 
 describe 'feeds', ->
   describe 'extension', ->
-    it 'should return a function', ->
-      null
+    it 'should return a function'
