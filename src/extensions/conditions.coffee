@@ -10,7 +10,7 @@ home.App::condition = (uid, options, func) ->
 
   @actions[uid] = base.schemaFunction options.params, func
 
-flow.extension 'conditions', ->
+flow.extension 'condition', ->
   info: """
     Conditions are functions that test circumstances and
     return whether they pass.

@@ -1,16 +1,18 @@
 home = require 'home'
-flow = require 'home.flow'
+flow = require '../'
 
-module.exports = flow.extension 'actions',
+module.exports = flow.extension 'action',
   name: 'Action'
   info: """
     An action is a function that is available in the home
-    environment by its identifier. It is also expost by
+    environment by its identifier. It is also exposed by
     its endpoint.
 
     The parameters to the endpoint are validated by the spec.
   """
   method: 'POST'
+  , home.endpoint
+
 
 flow.action 'example',
   name: 'Example Action'

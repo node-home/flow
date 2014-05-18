@@ -1,17 +1,18 @@
 home = require 'home'
-flow = require '../flow'
 
-module.exports = home.extension 'triggers',
+flow = require '../'
+
+module.exports = flow.extension 'trigger',
   name: 'Trigger'
   info: """
     A trigger is just a definition of a name with parameters.
     The trigger construction function returns a fire callback.
   """
 , (uid, options) ->
-    endpoint uid, options, (args) ->
+    home.endpoint uid, options, (args) ->
       flow.hub.emit uid, args
 
-home.trigger 'example',
+flow.trigger 'example',
   name: 'Example Trigger'
   info: """
     A trigger is an identifier that can be subscribed to.

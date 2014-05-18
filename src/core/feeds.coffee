@@ -1,18 +1,26 @@
+home = require 'home'
+
 ioClient = require 'socket.io-client'
 
 ###
-Subscription factory method.
+Subscription factory factory.
+
+Offers three factories to subscribe to a feed:
+- by websocket
+- by callback url
+- by callback function
+The factories each return an unsubscribe function
 ###
 exports.buildSubscribers = (uid, emitter) ->
-    # Connect to a websocket and push the data to it.
+  # Connect to a websocket and push the data to it.
   websocket: (clientUrl) ->
     clientSocket = ioClient.connect clientUrl
     emitter.on uid, func = (args) ->
       clientSocket.emit uid, args
     -> emitter.removeListener uid, func
 
-  # Connect an endpoint that is called on each tick.
-  endpoint: (clientUrl) ->
+  # Connect an url that is called on each tick.
+  url: (clientUrl) ->
     {host, path, port} = url.parse clientUrl
 
     options =
@@ -37,9 +45,13 @@ exports.buildSubscribers = (uid, emitter) ->
 
 ###
 Endpoint factory method.
+
+Builds an endpoint to subscribe to feeds.
+This can be done through a websocket url and/or
+callback url.
 ###
-exports.buildEndpoint = (uid, feed) ->
-  endpoint uid,
+exports.buildEndpoints = (uid, feed) ->
+  home.endpoint uid,
     method: 'POST'
     params:
       socket:
@@ -56,7 +68,7 @@ exports.buildEndpoint = (uid, feed) ->
     # OR
     #
     # Create a resource that can be options
-    endpoint uid,
+    home.endpoint uid,
       method: 'DELETE'
       url: "/TODO/feed/uuid"
     , (args) ->

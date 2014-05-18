@@ -1,12 +1,14 @@
-flow = require 'home.flow'
+flow = require '../'
 
-flow.extension 'sinks',
+module.exports = flow.extension 'sink',
   name: "Sink"
   info: """
     A sink is an object that has a do function, which
     can be hooked up to a feed to handle an incoming
     stream of data.
   """
+  , ->
+    console.log "flow.extensions.sinks Not Implemented"
 
 flow.sink 'example',
   name: "Example Sink"

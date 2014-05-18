@@ -4,9 +4,6 @@ io     =
   server: require 'socket.io'
   client: require 'socket.io-client'
 
-home   = require 'home'
-home.init()
-
 feeds  = require '../../src/extensions/feeds'
 helpers = require '../../src/helpers'
 

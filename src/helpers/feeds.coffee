@@ -4,6 +4,15 @@ ioClient = require 'socket.io-client'
 
 core     = require 'home/src/core'
 
+###
+Subscription factory factory.
+
+Offers three factories to subscribe to a feed:
+- by callback function
+- by callback url
+- by websocket
+The factories each return an unsubscribe function
+###
 exports.buildSubscribers = (uid, emitter) ->
   # Connect a callback function that is called on each tick
   callback: (callback) ->
@@ -14,15 +23,14 @@ exports.buildSubscribers = (uid, emitter) ->
 
     # Connect to a websocket and push the data to it.
   websocket: (clientUrl) ->
-    # TODO force new connection is set now for testing.
-    #      should this always be set?
+    # TODO Do we want a client per subscription?
     clientSocket = ioClient.connect clientUrl,
       'force new connection': true
     emitter.on uid, func = (args) ->
       clientSocket.emit uid, args
     -> emitter.removeListener uid, func
 
-  # Connect an endpoint that is called on each tick.
+  # Connect an url that is posted to on each event.
   endpoint: (clientUrl) ->
     {host, path, port} = url.parse clientUrl
 
@@ -39,6 +47,13 @@ exports.buildSubscribers = (uid, emitter) ->
 
     -> emitter.removeListener uid, func
 
+###
+Endpoint factory method.
+
+Builds an endpoint to subscribe to feeds.
+This can be done through a websocket url and/or
+callback url.
+###
 exports.buildEndpoint = (uid, feed) ->
   core.endpoint uid,
     method: 'POST'

@@ -1,5 +1,5 @@
 flow = require '../'
-helpers = require '../helpers'
+core = require '../core'
 
 # TODO setup socket connectors
 url       = require 'url'
@@ -7,7 +7,7 @@ http      = require 'http'
 events    = require 'events'
 io        = require 'socket.io'
 
-module.exports = flow.extension 'feeds',
+module.exports = flow.extension 'feed',
   name: "Feed"
   info: """
     A feed is a stream of information, available through
@@ -23,6 +23,7 @@ module.exports = flow.extension 'feeds',
     Feed should cache the last value and send it upon connect.
   """
   , (uid, options, setup) ->
+    # TODO use a shared emitter with channel? This doesn't close properly
     # emitter relays the events from the feed
     emitter = new events.EventEmitter
     setup (args) -> emitter.emit uid, args
@@ -35,10 +36,12 @@ module.exports = flow.extension 'feeds',
           serverSocket.emit uid, args
 
     # Various methods to subscribe to the feed with
-    subscribers = buildSubscribers uid, emitter
+    subscribers = core.buildSubscribers uid, emitter
     # Expose the subscribers via endpoints
-    endpoints = buildEndpoints uid, subscribers
+    endpoints = core.buildEndpoints uid, subscribers
 
+    # Return a function that exposes the various ways of
+    # connecting to the feed
     signaturify
       socket:
         type: String
@@ -46,10 +49,7 @@ module.exports = flow.extension 'feeds',
         type: String
       callback:
         type: 'function'
-
-    # Return a function that exposes the various ways of
-    # connecting to the
-    (options={}) ->
+    , (options={}) ->
       options = callback: options if typeof options is 'function'
       removers = sub options[key] for key, sub of subscribers when options[key]?
       -> remover() for remover in removers
