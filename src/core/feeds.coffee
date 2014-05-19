@@ -38,9 +38,10 @@ exports.buildSubscribers = (uid, emitter) ->
 
   # Connect a callback function that is called on each tick
   callback: (callback) ->
-    emitter.on uid, func = (args) ->
+    emitter.on uid, func = (args...) ->
+      console.log "CALLBACK", args...
       # TODO use async?
-      setTimeout (-> callback args), 0
+      setTimeout (-> callback args...), 0
     -> emitter.removeListener uid, func
 
 ###
@@ -50,7 +51,7 @@ Builds an endpoint to subscribe to feeds.
 This can be done through a websocket url and/or
 callback url.
 ###
-exports.buildEndpoints = (uid, feed) ->
+exports.buildEndpoint = (uid, feed) ->
   home.endpoint uid,
     method: 'POST'
     params:

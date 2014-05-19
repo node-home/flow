@@ -1,5 +1,6 @@
 flow = require '../'
 
+###
 flow.feed 'flow', ->
   name: "Flow"
   info: """
@@ -18,3 +19,17 @@ flow.feed 'flow', ->
       required: yes
 , (args) ->
   flow.hub.on args.trigger, args.action
+###
+module.exports = flow.feed 'flow', ->
+  name: "Flow"
+  info: """
+    Expose the flow hub as a feed.
+  """
+, (emit) ->
+  console.log "LISTENING *"
+  flow.hub.on 'echo', (args...) ->
+    console.log "FLOW ECHO TRIGGERED", args...
+    emit @event, args...
+  flow.hub.on '*', (args...) ->
+    console.log "FLOW * TRIGGERED", args...
+    emit @event, args...

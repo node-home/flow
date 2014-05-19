@@ -7,8 +7,12 @@ module.exports = flow.extension 'sink',
     can be hooked up to a feed to handle an incoming
     stream of data.
   """
-  , ->
+, (uid, options, setup) ->
     console.log "flow.extensions.sinks Not Implemented"
+    setup
+
+
+
 
 flow.sink 'example',
   name: "Example Sink"
@@ -17,6 +21,6 @@ flow.sink 'example',
     It should return a function that hooks up to a feed.
   """
   , (init_args) ->
+    console.log 'init_args', init_args
     (feed_args) ->
-      console.log 'init_args', init_args
       console.log 'feed_args', feed_args

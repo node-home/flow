@@ -1,11 +1,15 @@
+{signaturify} = require 'home/src/core'
+
 flow = require '../'
 core = require '../core'
 
 # TODO setup socket connectors
 url       = require 'url'
 http      = require 'http'
-events    = require 'events'
 io        = require 'socket.io'
+
+events    =
+  EventEmitter: require('eventemitter2').EventEmitter2
 
 module.exports = flow.extension 'feed',
   name: "Feed"
@@ -26,10 +30,10 @@ module.exports = flow.extension 'feed',
     # TODO use a shared emitter with channel? This doesn't close properly
     # emitter relays the events from the feed
     emitter = new events.EventEmitter
-    setup (args) -> emitter.emit uid, args
+    setup (args...) -> emitter.emit uid, args...
 
     # Serve a websocket that can be connected to by clients
-    serverSocket = io
+    serverSocket = io.listen()
       .of "/#{uid}"
       .on 'connection', (socket) ->
         emitter.on uid, (args) ->
@@ -38,7 +42,7 @@ module.exports = flow.extension 'feed',
     # Various methods to subscribe to the feed with
     subscribers = core.buildSubscribers uid, emitter
     # Expose the subscribers via endpoints
-    endpoints = core.buildEndpoints uid, subscribers
+    endpoints = core.buildEndpoint uid, subscribers
 
     # Return a function that exposes the various ways of
     # connecting to the feed
@@ -53,3 +57,11 @@ module.exports = flow.extension 'feed',
       options = callback: options if typeof options is 'function'
       removers = sub options[key] for key, sub of subscribers when options[key]?
       -> remover() for remover in removers
+
+
+# flow.feed 'example', ->
+#   info: """
+#   """
+# , (emit) ->
+#   flow.hub.on '*', (args...) ->
+#     emit @event, args...
