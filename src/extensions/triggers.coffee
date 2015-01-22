@@ -9,8 +9,9 @@ module.exports = flow.extension 'trigger',
     The trigger construction function returns a fire callback.
   """
 , (uid, options) ->
-    home.endpoint uid, options, (args) ->
-      flow.hub.emit uid, args
+  home.endpoint "triggers/#{uid}", options, (args) ->
+  # flow.endpoint uid, options, (args) ->
+    flow.hub.emit uid, args
 
 flow.trigger 'example',
   name: 'Example Trigger'
